@@ -7,6 +7,23 @@ Claude reviews the files that actually changed on disk and re-runs the checks it
 denied commit / push / deploy / recursive delete (deny rules + a gatekeeper hook that checks the
 whole command); those stay with Claude after review.
 
+## Why it exists
+
+Coding agents are fast but should not be trusted with irreversible actions. This skill splits the work: one model plans and audits, another executes inside hard limits, and nothing leaves the machine until the reviewer has checked the real diff.
+
+**Engineering highlights**
+
+- **Gatekeeper hook** (`grok-guard.ps1`) inspects the full command before it runs, including bypass forms such as `git -C <dir> commit`; plan mode allows read-only commands only
+- **Risk tiers** — high-risk tasks get a read-only plan first, which must be approved before execution
+- **Independent verification** — the reviewer diffs files on disk itself instead of trusting the executor's report
+- **Isolation** — optional per-task git worktrees for parallel runs
+- **Resilience** — live progress streaming, stall detection and auto-kill, automatic fresh session when context grows too large
+- **Offline tests** for the gatekeeper (`tests/test-guard.ps1`)
+
+Author: **Dong Wang**
+
+---
+
 ## 安装（Windows）
 
 **1. 安装并登录 Grok Build CLI**（PowerShell）
